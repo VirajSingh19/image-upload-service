@@ -11,21 +11,22 @@ app.use(cors());
 
 
 // // Database connection configuration
-// const pool = new Pool({
-//   user: process.env.pg_user,
-//   host: process.env.pg_host,
-//   database: process.env.pg_db,
-//   password: process.env.pg_password,
-//   port: 5432, // default PostgreSQL port
-//   ssl: true
-// });
+const pool = new Pool(
+  
+  process.env.NODE_ENV === 'prod' ?
+  {
+    connectionString: process.env.pg_prod_conn
+  }:
+  {
+  user: process.env.pg_user,
+  host: process.env.pg_host,
+  database: process.env.pg_db,
+  password: process.env.pg_password,
+  port: 5432, // default PostgreSQL port
+  ssl: true
+});
 
-const pool = new Pool({
-  // connectionString: `postgres://${process.env.pg_user}:${process.env.pg_password}@${process.env.pg_host}/${process.env.pg_db}?ssl=true`
-  connectionString: "postgresql://yash_9qs8_user:Qf14a6KCdEe9IMXQ9g1qEeYeeX9x7X68@dpg-cqg1e1tds78s73c7hgm0-a/yash_9qs8"
-})
-
-
+console.log(process.env.NODE_ENV)
 
 
 // Define a GET endpoint
@@ -47,4 +48,3 @@ app.listen(port, async () => {
   // res.send(result.rows[0]);
 });
 
-// PGPASSWORD=Qf14a6KCdEe9IMXQ9g1qEeYeeX9x7X68 psql -h dpg-cqg1e1tds78s73c7hgm0-a.oregon-postgres.render.com -U yash_9qs8_user yash_9qs8
