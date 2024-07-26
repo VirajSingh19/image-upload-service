@@ -33,13 +33,13 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     const file = req.file;
     const fileSize = file.size;
     const fileData = file.buffer; // The binary data of the file
+    const fileType = file.mimetype; // Get the MIME type of the file
     const client = await pool.connect();
     const result = await client.query(
-      'INSERT INTO images (filename, file_size, image_data) VALUES ($1, $2, $3) RETURNING *',
-      [file.originalname, fileSize, fileData]
+      'INSERT INTO images (filename, file_size, file_type, image_data) VALUES ($1, $2, $3, $4) RETURNING id',
+      [file.originalname, fileSize, fileType, fileData]
     );
     client.release();
-    delete result.rows[0]['image_data'];
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
@@ -58,7 +58,7 @@ app.get('/images', async (req, res) => {
       const image = result.rows;
       res.send(image);
     } else {
-      res.status(404).send('Image not found');
+      res.send([]);
     }
   } catch (err) {
     console.error(err);
@@ -77,6 +77,10 @@ app.get('/image/:id', async (req, res) => {
     if (result.rows.length > 0) {
       const image = result.rows[0];
       res.setHeader('Content-Type', 'image/jpeg'); // Adjust the MIME type as necessary
+      res.setHeader('Content-Type', image.file_type);
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day (86400 seconds)
+      res.setHeader('Expires', new Date(Date.now() + 86400000).toUTCString()); // Cache expires in 1 day
+
       res.send(image.image_data);
     } else {
       res.status(404).send('Image not found');
@@ -92,7 +96,7 @@ app.get('/image/:id', async (req, res) => {
 app.delete('/image/:id', async (req, res) => {
   try {
     const client = await pool.connect();
-    const result = await client.query('DELETE FROM images WHERE id = $1 RETURNING *', [req.params.id]);
+    const result = await client.query('DELETE FROM images WHERE id = $1 RETURNING id', [req.params.id]);
     client.release();
     if (result.rowCount > 0) {
       res.status(200).send('Image deleted successfully');
