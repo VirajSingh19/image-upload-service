@@ -21,8 +21,11 @@ app.use(cors());
 // });
 
 const pool = new Pool({
-  connectionString: `postgres://${process.env.pg_user}:${process.env.pg_password}@${process.env.pg_host}/${process.env.pg_db}?ssl=true`
+  // connectionString: `postgres://${process.env.pg_user}:${process.env.pg_password}@${process.env.pg_host}/${process.env.pg_db}?ssl=true`
+  connectionString: "postgresql://yash_9qs8_user:Qf14a6KCdEe9IMXQ9g1qEeYeeX9x7X68@dpg-cqg1e1tds78s73c7hgm0-a/yash_9qs8"
 })
+
+
 
 
 // Define a GET endpoint
