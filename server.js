@@ -39,7 +39,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
       [file.originalname, fileSize, fileData]
     );
     client.release();
-    delete 
+    delete result.rows[0]['image_data'];
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
@@ -55,7 +55,7 @@ app.get('/images', async (req, res) => {
     const result = await client.query('SELECT id,filename, file_size FROM images');
     client.release();
     if (result.rows.length > 0) {
-      const image = result.rows[0];
+      const image = result.rows;
       res.send(image);
     } else {
       res.status(404).send('Image not found');
