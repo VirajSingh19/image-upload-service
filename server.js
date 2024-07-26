@@ -10,15 +10,20 @@ app.use(cors());
 
 
 
-// Database connection configuration
+// // Database connection configuration
+// const pool = new Pool({
+//   user: process.env.pg_user,
+//   host: process.env.pg_host,
+//   database: process.env.pg_db,
+//   password: process.env.pg_password,
+//   port: 5432, // default PostgreSQL port
+//   ssl: true
+// });
+
 const pool = new Pool({
-  user: process.env.pg_user,
-  host: process.env.pg_host,
-  database: process.env.pg_db,
-  password: process.env.pg_password,
-  port: 5432, // default PostgreSQL port
-  ssl: true
-});
+  connectionString: `postgres://${process.env.pg_user}:${process.env.pg_password}@${process.env.pg_host}/${process.env.pg_db}?ssl=true`
+})
+
 
 // Define a GET endpoint
 app.get('/', async  (req, res) => {
