@@ -8,26 +8,10 @@ require('dotenv').config()
 app.use(cors());
 
 
-
-
-// // Database connection configuration
-const pool = new Pool(
-  
-  process.env.NODE_ENV === 'prod' ?
-  {
-    connectionString: process.env.pg_prod_conn
-  }:
-  {
-  user: process.env.pg_user,
-  host: process.env.pg_host,
-  database: process.env.pg_db,
-  password: process.env.pg_password,
-  port: 5432, // default PostgreSQL port
-  ssl: true
-});
-
-console.log(process.env.NODE_ENV)
-
+const pool = new Pool({
+  // connectionString: `postgres://${process.env.pg_user}:${process.env.pg_password}@${process.env.pg_host}/${process.env.pg_db}?ssl=true`
+  connectionString: "postgresql://yash_9qs8_user:Qf14a6KCdEe9IMXQ9g1qEeYeeX9x7X68@dpg-cqg1e1tds78s73c7hgm0-a/yash_9qs8"
+})
 
 // Define a GET endpoint
 app.get('/', async  (req, res) => {
@@ -47,4 +31,3 @@ app.listen(port, async () => {
   client.release();
   // res.send(result.rows[0]);
 });
-
