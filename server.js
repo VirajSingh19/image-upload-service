@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const app = express();
 const port = 3000;
 const { Pool } = require('pg');
@@ -108,6 +110,51 @@ app.delete('/image/:id', async (req, res) => {
     res.status(500).send('Error deleting file');
   }
 });
+
+
+// Image upload endpoint
+app.post('/selected-image', upload.single('image'), async (req, res) => {
+  try {
+    const file = req.file;
+    const fileSize = file.size;
+    const fileData = file.buffer; // The binary data of the file
+    const fileType = file.mimetype; // Get the MIME type of the file
+    const client = await pool.connect();
+    await client.query('delete from selected_image');
+    const result = await client.query(
+      'INSERT INTO selected_image (image, filetype, filesize, filename) VALUES ($1, $2, $3, $4) RETURNING filename',
+      [fileData, fileType, fileSize, file.originalname]
+    );
+    client.release();
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error uploading file');
+  }
+});
+
+
+app.get("/selected-image", async(req, res) =>{
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * from selected_image');
+    client.release();
+    if (result.rowCount > 0) {
+      // res.status(200).send('Image deleted successfully');
+      const image = result.rows[0];
+      res.setHeader('Content-Type', image.filetype);
+      res.send(image.image);
+    } else {
+      const filePath = path.join(__dirname, 'avatar.png');
+      const data = fs.readFileSync(filePath);
+      res.setHeader('Content-Type', 'image/png');
+      res.send(data);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error deleting file');
+  }
+})
 
 
 // Start the server
